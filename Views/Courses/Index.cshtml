@@ -1,0 +1,148 @@
+﻿@using Microsoft.EntityFrameworkCore.Storage
+@model IEnumerable<StudentPlanner.Models.Courses>
+
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+}
+<div class="d-flex flex-column justify-content-center">
+    <h1 class="align-content-center">Student Study Planner</h1>
+    <p class="w-100">
+        <a class="btn btn-secondary w-100 mw-100 vw-100" asp-action="Create">Add a module</a>
+    </p>
+</div>
+
+<div class="w-100 d-flex flex-column">
+    <table class="table table-dark table-hover w-100">
+        <thead>
+            <tr>
+                <th>
+                    @Html.DisplayNameFor(model => model.Code)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Name)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.NumberOfCredits)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.NumberOfHours)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.NumOfWeeks)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.SemesterStart)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.ApplicationUser)
+                </th>
+                <th>
+                   Hrs
+                </th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Code)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Name)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.NumberOfCredits)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.NumberOfHours)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.NumOfWeeks)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.SemesterStart)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.ApplicationUser.Email)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.CalcSelfStudyHours)
+                    </td>
+                    <td>
+                        <a class="btn btn-outline-light" asp-action="Edit" asp-route-id="@item.Id">Edit</a>
+                        <a class="btn btn-outline-light" asp-action="Details" asp-route-id="@item.Id">Details</a>
+                        <a class="btn btn-outline-light" asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    <div>
+        <h1>Self Study Hours</h1>
+        <div class="w-100 d-flex flex-row p-2 m-4">
+            <div class="w-50">
+                <canvas id="barChart" width="250" height="250"></canvas>
+            </div>
+            <div class="w-50">
+                <canvas id="pieChart" width="250" height="250"></canvas>
+            </div>
+           
+        </div>
+       
+       </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdnjs.com/libraries/Chart.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.min.js" integrity="sha512-7U4rRB8aGAHGVad3u2jiC7GA5/1YhQcQjxKeaVms/bT66i3LVBMRcBI9KwABNWnxOSwulkuSXxZLGuyfvo7V1A==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.js" integrity="sha512-6LKCH7i2+zMNczKuCT9ciXgFCKFp3MevWTZUXDlk7azIYZ2wF5LRsrwZqO7Flt00enUI+HwzzT5uhOvy6MNPiA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.js" integrity="sha512-6HrPqAvK+lZElIZ4mZ64fyxIBTsaX5zAFZg2V/2WT+iKPrFzTzvx6QAsLW2OaLwobhMYBog/+bvmIEEGXi0p1w==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script type="text/javascript">
+    $(document).ready(function () { 
+        $.ajax({
+            type: "POST",
+            url: "/Courses/GetTotalHours",
+            data: "",
+            contentType: "application/json; charset=utf8",
+            dataType: "json",
+            success: OnSuccess,
+        });
+
+        function OnSuccess(data) { 
+            const barChart = document.getElementById('barChart');
+            const pieChart = document.getElementById('pieChart');
+            var _data = data;
+            var _labels = _data[0];
+            var _ChartData = _data[1];
+            var colors = ['#2e2727', '#af6e78', '#f6af6f', '#0c0c10', '#eb9f2e'];
+            new Chart(barChart, {
+                type: 'bar',
+                data: {
+                    labels: _labels,
+                    datasets: [{
+                        backgroundColor: colors,
+                        data: _ChartData,
+                        borderWidth: 1,
+                    }]
+                }
+            });
+            new Chart(pieChart, {
+                type: 'pie',
+                data: {
+                    labels: _labels,
+                    datasets: [{
+                        backgroundColor: colors,
+                        data: _ChartData,
+                        borderWidth: 1,
+                    }]
+                }
+            });
+        }
+      
+    })
+
+</script>
